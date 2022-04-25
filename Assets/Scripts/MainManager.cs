@@ -99,4 +99,14 @@ public class MainManager : MonoBehaviour
         mainElements = GameObject.Find("MainElements");
         gameStart = GameObject.Find("GameStart");
     }
+
+    public int GetPoints()
+    {
+        return m_Points;
+    }
+
+    public bool GetGameOver()
+    {
+        return m_GameOver;
+    }
 }

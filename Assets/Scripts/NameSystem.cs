@@ -14,6 +14,9 @@ public class NameSystem : MonoBehaviour
 
     //values
     private string userName;
+    private int pointsThisRound;
+    private int pointsOverall;
+    private bool gameEndCheck; //so that function runs only once on game over, set false after gamestart and true after OnGameOver()
 
     // Start is called before the first frame update
     void Start()
@@ -21,12 +24,27 @@ public class NameSystem : MonoBehaviour
         SetupGetComponents();
         LoadName();
         FillWithSavedName();
+        gameEndCheck = false;
     }
 
     // Update is called once per frame
     void Update()
     {
-        
+        if (!gameEndCheck)
+        {
+            OnGameOver();
+        }
+    }
+
+    private void OnGameOver()
+    {
+        if (mainManager.GetGameOver())
+        {
+            Debug.Log("Game Over");
+            pointsThisRound = mainManager.GetPoints();
+            SavePoints();
+            gameEndCheck = true;
+        }
     }
 
     //objects and components
@@ -48,15 +66,22 @@ public class NameSystem : MonoBehaviour
 
     public void AcceptName()
     {
-        scoreText.text = "Best Score : " + userName + " : 0";
+        LoadPoints();
+        scoreText.text = "Best Score : " + userName + " : " + pointsOverall;
         SaveName();
         mainManager.StartGame();
+    }
+
+    public void SetPoints(int points)
+    {
+        pointsOverall = points;
     }
 
     [System.Serializable]
     class SaveData
     { 
         public string userName;
+        public int pointsOverall;
     }
 
     public void SaveName()
@@ -79,6 +104,38 @@ public class NameSystem : MonoBehaviour
 
             userName = data.userName;
             SetName(data.userName);
+        }
+    }
+
+    public void SavePoints()
+    {
+        SaveData data = new SaveData();
+        if (pointsThisRound > pointsOverall)
+        {
+            data.pointsOverall = pointsThisRound;
+
+            string json = JsonUtility.ToJson(data);
+
+            File.WriteAllText(Application.persistentDataPath + "/savefilePoints.json", json);
+        }
+        //else dont change points anymore
+        
+    }
+
+    public void LoadPoints()
+    {
+        string path = Application.persistentDataPath + "/savefilePoints.json";
+        if (File.Exists(path))
+        {
+            string json = File.ReadAllText(path);
+            SaveData data = JsonUtility.FromJson<SaveData>(json);
+
+            pointsOverall = data.pointsOverall;
+            SetPoints(data.pointsOverall);
+        }
+        else 
+        {
+            pointsOverall = 0; //have to set, to prevent errors in AcceptName() on gamestart, with no points saved
         }
     }
 }
