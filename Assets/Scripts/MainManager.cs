@@ -18,10 +18,17 @@ public class MainManager : MonoBehaviour
     
     private bool m_GameOver = false;
 
+    //elements
+    private GameObject mainElements; //score and username while play
+    private GameObject gameStart; // select username screen before play
+
     
     // Start is called before the first frame update
     void Start()
     {
+        SetupGetComponents();
+        SetupScene();
+
         const float step = 0.6f;
         int perLine = Mathf.FloorToInt(4.0f / step);
         
@@ -72,5 +79,24 @@ public class MainManager : MonoBehaviour
     {
         m_GameOver = true;
         GameOverText.SetActive(true);
+    }
+
+    public void SetupScene()
+    {
+        mainElements.SetActive(false); //had to be active before, so the system could find them
+        gameStart.SetActive(true);
+    }
+
+    public void StartGame()
+    {
+        gameStart.SetActive(false);
+        mainElements.SetActive(true);
+    }
+
+    //objects and components
+    public void SetupGetComponents()
+    {
+        mainElements = GameObject.Find("MainElements");
+        gameStart = GameObject.Find("GameStart");
     }
 }
